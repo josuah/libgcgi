@@ -8,7 +8,13 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/stat.h>
+
 #include "libgcgi.h"
+
+#ifndef __OpenBSD__
+#define pledge(p1,p2) 0
+#define unveil(p1,p2) 0
+#endif
 
 static void
 error_404(char **matches)
@@ -33,6 +39,7 @@ static struct gcgi_handler handlers[] = {
 int
 main(int argc, char **argv)
 {
+
 	/* restrict allowed paths */
 	unveil("gph", "r");
 	unveil("db", "rwc");
