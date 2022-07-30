@@ -13,11 +13,16 @@
 static void
 error_404(char **matches)
 {
+	struct gcgi_var_list vars = {0};
 	char *var;
+
+	gcgi_read_var_list(&vars, "db/vars");
 
 	printf("sorry, I could not find %s\n", matches[0]);
 	if ((var = gcgi_get_var(&gcgi_gopher_query, "var")) != NULL)
 		printf("I got the $var though! -> '%s'\n", var);
+
+	gcgi_template("gph/404.gph", &vars);
 }
 
 static struct gcgi_handler handlers[] = {
@@ -30,7 +35,6 @@ main(int argc, char **argv)
 {
 	/* restrict allowed paths */
 	unveil("gph", "r");
-	unveil("tmp", "rwc");
 	unveil("db", "rwc");
 
 	/* restrict allowed system calls */

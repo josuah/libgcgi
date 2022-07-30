@@ -24,9 +24,6 @@ static void gcgi_handle_request(struct gcgi_handler h[], char **argv, int argc);
 /* abort the program with an error message sent to the client */
 static void gcgi_fatal(char *fmt, ...);
 
-/* receive a file payload from the client onto the disk at `path` */
-static void gcgi_receive_file(char const *path);
-
 /* print a template with every "{{name}}" looked up in `vars` */
 static void gcgi_template(char const *path, struct gcgi_var_list *vars);
 
@@ -88,8 +85,10 @@ gcgi_fopenread(char *path)
 		return NULL;
 	if ((buf = malloc(sz + 1)) == NULL)
 		return NULL;
-	if (fread(buf, sz, 1, fp) != sz)
+	if (fread(buf, sz, 1, fp) == sz) {
+		errno = EFBIG;
 		goto error_free;
+	}
 	if (ferror(fp))
 		goto error_free;
 	fclose(fp);
@@ -321,17 +320,14 @@ static void
 gcgi_template(char const *path, struct gcgi_var_list *vars)
 {
 	FILE *fp;
-	ssize_t ssz;
 	size_t sz;
-	char *line, *head, *tail, *key;
-	char *val;
+	char *line, *head, *tail, *key, *val;
 
 	if ((fp = fopen(path, "r")) == NULL)
 		gcgi_fatal("opening template %s", path);
-
 	sz = 0;
 	line = NULL;
-	while ((ssz = getline(&line, &sz, fp)) > 0) {
+	while (getline(&line, &sz, fp) > 0) {
 		head = tail = line;
 		for (; (key = gcgi_next_var(head, &tail)); head = tail) {
 			fputs(head, stdout);
@@ -342,7 +338,7 @@ gcgi_template(char const *path, struct gcgi_var_list *vars)
 		}
 		fputs(tail, stdout);
 	}
-	if (ssz == -1)
+	if (ferror(fp))
 		gcgi_fatal("reading from template: %s", strerror(errno));
 	fclose(fp);
 }
