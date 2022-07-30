@@ -44,15 +44,12 @@ static void gcgi_free_var_list(struct gcgi_var_list *vars);
 static void gcgi_read_var_list(struct gcgi_var_list *vars, char *path);
 static int gcgi_write_var_list(struct gcgi_var_list *vars, char *path);
 
-/* parse various components of the Gopher request */
-static struct gcgi_var_list * gcgi_parse_query_string(void);
-
 /* components of the gopher request */
 char *gcgi_gopher_search;
 char *gcgi_gopher_path;
 char *gcgi_gopher_host;
 char *gcgi_gopher_port;
-char *gcgi_gopher_args;
+static struct gcgi_var_list gcgi_gopher_query;
 
 
 /// POLICE LINE /// DO NOT CROSS ///
@@ -68,7 +65,6 @@ gcgi_fatal(char *fmt, ...)
 
 	va_start(va, fmt);
 	vsnprintf(msg, sizeof msg, fmt, va);
-	printf("Status: 500 Server Error\n\n");
 	printf("error: %s\n", msg);
 	exit(1);
 }
@@ -237,9 +233,26 @@ gcgi_match(char const *glob, char *path, char **matches, size_t m)
 	return *glob == '\0' && *path == '\0';
 }
 
+static inline void
+gcgi_decode_url(struct gcgi_var_list *vars, char *s)
+{
+	char *tok, *eq;
+
+	while ((tok = strsep(&s, "&"))) {
+		//gcgi_decode_hex(tok);
+		if ((eq = strchr(tok, '=')) == NULL)
+			continue;
+		*eq = '\0';
+		gcgi_add_var(vars, tok, eq + 1);
+	}
+	gcgi_sort_var_list(vars);
+}
+
 static void
 gcgi_handle_request(struct gcgi_handler h[], char **argv, int argc)
 {
+	char *query_string;
+
 	if (argc != 5)
 		gcgi_fatal("wrong number of arguments: %c", argc);
 	assert(argv[0] && argv[1] && argv[2] && argv[3]);
@@ -249,11 +262,10 @@ gcgi_handle_request(struct gcgi_handler h[], char **argv, int argc)
 	gcgi_gopher_path = argv[2];
 	gcgi_gopher_host = argv[3];
 	gcgi_gopher_port = argv[4];
-	gcgi_gopher_args = strchr(gcgi_gopher_path, '?');
-	if (gcgi_gopher_args == NULL) {
-		gcgi_gopher_args = "";
-	} else {
-		*gcgi_gopher_args++ = '\0';
+	query_string = strchr(gcgi_gopher_path, '?');
+	if (query_string != NULL) {
+		*query_string++ = '\0';
+		gcgi_decode_url(&gcgi_gopher_query, query_string);
 	}
 
 	for (; h->glob != NULL; h++) {
@@ -309,17 +321,17 @@ static void
 gcgi_template(char const *path, struct gcgi_var_list *vars)
 {
 	FILE *fp;
+	ssize_t ssz;
 	size_t sz;
 	char *line, *head, *tail, *key;
 	char *val;
 
-	sz = 0;
-	line = NULL;
-
 	if ((fp = fopen(path, "r")) == NULL)
 		gcgi_fatal("opening template %s", path);
 
-	while (getline(&line, &sz, fp) > 0) {
+	sz = 0;
+	line = NULL;
+	while ((ssz = getline(&line, &sz, fp)) > 0) {
 		head = tail = line;
 		for (; (key = gcgi_next_var(head, &tail)); head = tail) {
 			fputs(head, stdout);
@@ -330,6 +342,8 @@ gcgi_template(char const *path, struct gcgi_var_list *vars)
 		}
 		fputs(tail, stdout);
 	}
+	if (ssz == -1)
+		gcgi_fatal("reading from template: %s", strerror(errno));
 	fclose(fp);
 }
 

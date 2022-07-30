@@ -10,8 +10,18 @@
 #include <sys/stat.h>
 #include "libgcgi.h"
 
+static void
+error_404(char **matches)
+{
+	char *var;
+
+	printf("sorry, I could not find %s\n", matches[0]);
+	if ((var = gcgi_get_var(&gcgi_gopher_query, "var")) != NULL)
+		printf("I got the $var though! -> '%s'\n", var);
+}
+
 static struct gcgi_handler handlers[] = {
-//	{ "*",				error_404 },
+	{ "*",				error_404 },
 	{ NULL,				NULL },
 };
 
