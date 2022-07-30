@@ -41,11 +41,12 @@ main(int argc, char **argv)
 {
 
 	/* restrict allowed paths */
-	unveil("gph", "r");
-	unveil("db", "rwc");
+	if (unveil("gph", "r") == -1 || unveil("db", "rwc") == -1)
+		gcgi_fatal("unveil failed");
 
 	/* restrict allowed system calls */
-	pledge("stdio rpath wpath cpath", NULL);
+	if (pledge("stdio rpath wpath cpath", NULL) == -1)
+		gcgi_fatal("pledge failed");
 
 	/* handle the request with the handlers */
 	gcgi_handle_request(handlers, argv, argc);
