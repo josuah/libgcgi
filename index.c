@@ -10,7 +10,7 @@
 #endif
 
 static void
-error_404(char **matches)
+error_page_not_found(char **matches)
 {
 	struct gcgi_var_list vars = {0};
 	char *var;
@@ -21,12 +21,12 @@ error_404(char **matches)
 	if ((var = gcgi_get_var(&gcgi_gopher_query, "var")) != NULL)
 		printf("I got the $var though! -> '%s'\n", var);
 
-	gcgi_template("gph/404.gph", &vars);
+	gcgi_template("gph/error_page_not_found.gph", &vars);
 }
 
 static struct gcgi_handler handlers[] = {
-	{ "*",				error_404 },
-	{ NULL,				NULL },
+	{ "*",		error_page_not_found },
+	{ NULL,		NULL },
 };
 
 int

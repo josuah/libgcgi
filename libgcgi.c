@@ -70,7 +70,7 @@ gcgi_cmp_var(const void *v1, const void *v2)
 	return strcasecmp(((struct gcgi_var *)v1)->key, ((struct gcgi_var *)v2)->key);
 }
 
-void
+static void
 gcgi_add_var(struct gcgi_var_list *vars, char *key, char *val)
 {
 	void *mem;
@@ -83,7 +83,7 @@ gcgi_add_var(struct gcgi_var_list *vars, char *key, char *val)
 	vars->list[vars->len-1].val = val;
 }
 
-void
+static void
 gcgi_sort_var_list(struct gcgi_var_list *vars)
 {
 	qsort(vars->list, vars->len, sizeof *vars->list, gcgi_cmp_var);
@@ -138,8 +138,7 @@ gcgi_read_var_list(struct gcgi_var_list *vars, char *path)
 void
 gcgi_free_var_list(struct gcgi_var_list *vars)
 {
-	if (vars->buf != NULL)
-		free(vars->buf);
+	free(vars->buf);
 	free(vars->list);
 }
 
@@ -159,7 +158,7 @@ gcgi_write_var_list(struct gcgi_var_list *vars, char *dst)
 		gcgi_fatal("opening '%s' for writing", path);
 
 	for (v = vars->list, n = vars->len; n > 0; v++, n--) {
-		if (strcasecmp(v->key, "Text") == 0) {
+		if (strcasecmp(v->key, "text") == 0) {
 			text = text ? text : v->val;
 			continue;
 		}
@@ -203,7 +202,6 @@ gcgi_decode_url(struct gcgi_var_list *vars, char *s)
 	char *tok, *eq;
 
 	while ((tok = strsep(&s, "&"))) {
-		//gcgi_decode_hex(tok);
 		if ((eq = strchr(tok, '=')) == NULL)
 			continue;
 		*eq = '\0';
@@ -253,6 +251,24 @@ gcgi_next_var(char *head, char **tail)
 	*beg = *end = '\0';
 	*tail = end + strlen("}}");
 	return beg + strlen("{{");
+}
+
+void
+gcgi_print_gophermap(char type, char *desc, char *path, char *host, char *port)
+{
+	assert(type >= 0x30);
+	printf("%c%s\t%s\t%s\t%s\n", type, desc, path, host, port);
+}
+
+void
+gcgi_print_gph(char type, char *desc, char *path, char *host, char *port)
+{
+	assert(type >= 0x30);
+	if (host == NULL)
+		host = "server";
+	if (port == NULL)
+		port = "port";
+	printf("[%c|%s|%s|%s|%s]\n", type, desc, path, host, port);
 }
 
 void

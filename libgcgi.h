@@ -28,8 +28,6 @@ void gcgi_fatal(char *fmt, ...);
 void gcgi_template(char const *path, struct gcgi_var_list *vars);
 
 /* manage a `key`-`val` pair storage `vars`, as used with gcgi_template */
-void gcgi_add_var(struct gcgi_var_list *vars, char *key, char *val);
-void gcgi_sort_var_list(struct gcgi_var_list *vars);
 void gcgi_set_var(struct gcgi_var_list *vars, char *key, char *val);
 char *gcgi_get_var(struct gcgi_var_list *vars, char *key);
 void gcgi_free_var_list(struct gcgi_var_list *vars);
@@ -41,8 +39,8 @@ int gcgi_write_var_list(struct gcgi_var_list *vars, char *path);
 /* components of the gopher request */
 extern char *gcgi_gopher_search;
 extern char *gcgi_gopher_path;
+extern struct gcgi_var_list gcgi_gopher_query;
 extern char *gcgi_gopher_host;
 extern char *gcgi_gopher_port;
-extern struct gcgi_var_list gcgi_gopher_query;
 
 #endif
