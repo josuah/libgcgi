@@ -1,7 +1,11 @@
 #ifndef LIBGCGI_H
 #define LIBGCGI_H
 
-/* Gopher CGI library to use in CGI scripts */
+/*
+ * Gopher CGI library to use in CGI scripts
+ *
+ * See libgcgi(3) or the README for usage and examples.
+ */
 
 /* maps glob pattern */
 struct gcgi_handler {
@@ -42,5 +46,8 @@ extern char *gcgi_gopher_path;
 extern struct gcgi_var_list gcgi_gopher_query;
 extern char *gcgi_gopher_host;
 extern char *gcgi_gopher_port;
+
+/* need to be provided if not present in libc, which is rare */
+char *strsep(char **s, const char *delims);
 
 #endif

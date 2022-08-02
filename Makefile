@@ -1,5 +1,5 @@
 LDFLAGS = -static
-CFLAGS = -g -pedantic -std=c99 -Wall -Wextra
+CFLAGS = -D_POSIX_C_SOURCE=200809L -g -pedantic -std=c99 -Wall -Wextra
 
 all: index.cgi
 
