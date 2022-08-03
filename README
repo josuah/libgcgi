@@ -4,7 +4,7 @@ NAME
      gcgi_handle_request, gcgi_fatal, gcgi_template, gcgi_set_var,
      gcgi_get_var, gcgi_free_var_list, gcgi_read_var_list,
      gcgi_write_var_list, gcgi_gopher_search, gcgi_gopher_path,
-     gcgi_gopher_query, gcgi_gopher_host, gcgi_gopher_port,  REST library for
+     gcgi_gopher_query, gcgi_gopher_host, gcgi_gopher_port, – REST library for
      Gopher
 
 SYNOPSIS
@@ -51,10 +51,10 @@ DESCRIPTION
      };
 
      The glob is a string against which the path (everything in the query
-     before the ?) will be matched against.
+     before the “”?) will be matched against.
 
      The fn function pointer will be called, with an array of matches passed
-     as argument.  There are as many matches populated as there are * in
+     as argument.  There are as many matches populated as there are “*” in
      glob.
 
      void gcgi_handle_request(struct gcgi_handler h[], int argc, char **argv)
@@ -65,8 +65,8 @@ DESCRIPTION
 
    Content Generation
      According to geomyidae(8) behavior, the output format will be:
-      a raw gophermap if the binary is index.cgi,
-      a geomyidae(8) gph format if the binary is index.dcgi.
+     •	a raw gophermap if the binary is “index.cgi”,
+     •	a geomyidae(8) ‘gph’ format if the binary is “index.dcgi”.
 
      void gcgi_fatal(char *fmt, ...)
 	     Prints an error message formatted by fmt and exit(3) the program
@@ -74,7 +74,7 @@ DESCRIPTION
 
      void gcgi_template(char const *path, struct gcgi_var_list *vars)
 	     Format the template at path replacing every occurence of
-	     {{key}} by the matching value by searching in vars.
+	     “{{key}}” by the matching value by searching in vars.
 
      void gcgi_print_gophermap(char type, char *desc, char *path, char *host,
 	     char *port)
@@ -91,9 +91,9 @@ DESCRIPTION
 
    Variable List Handling
      A common data format is used for handling lists of variables:
-      For parsing a simple text-based database format and writing it back.
-      For storing the parsed query string in gcgi_gopher_query.
-      For passing variables to expand in the templates.
+     •	For parsing a simple text-based database format and writing it back.
+     •	For storing the parsed query string in gcgi_gopher_query.
+     •	For passing variables to expand in the templates.
 
      void gcgi_set_var(struct gcgi_var_list *vars, char *key, char *val)
 	     Overwrite with val the value of a variable matching key of vars.
@@ -112,19 +112,19 @@ DESCRIPTION
      void gcgi_read_var_list(struct gcgi_var_list *vars, char *path)
 	     Store all variables from path onto variables in vars.  The file
 	     format is similar to RFC822 messages or HTTP headers:
-	      One line per variable, with a key=value format.
-	      The key is everything at the beginning of the line until the
-		occurence of :.
-	      The value is everything after : .
-	      After the list of variables, an empty line declares the body
+	     •	One line per variable, with a key=value format.
+	     •	The key is everything at the beginning of the line until the
+		occurence of “:”.
+	     •	The value is everything after “: ”.
+	     •	After the list of variables, an empty line declares the body
 		of the message, which continues until the end and is stored in
-		a text key.
+		a “text” key.
 
      int gcgi_write_var_list(struct gcgi_var_list *vars, char *path)
 	     Encode the variable list vars into a new file at path.  A
 	     temporary file will be created in the meantime, and the
 	     replacement will be atomic so that no partial write can occur.
-	     The text special key will be turned into the body of the
+	     The “text” special key will be turned into the body of the
 	     message after an empty line instead of a variable on its own
 	     line.
 
@@ -134,7 +134,7 @@ DESCRIPTION
 
      char *gcgi_gopher_search
 	     From argv[1], this is the search string, passed after a tab in
-	     the gopher protocol for item type 7.
+	     the gopher protocol for item type “7”.
 
      char *gcgi_gopher_path
 	     From argv[2], this is the query path.  It is the full query
@@ -143,17 +143,17 @@ DESCRIPTION
      struct gcgi_var_list gcgi_gopher_query
 	     From argv[2], this is the query string stored as a key-value
 	     gcgi_var_list.  It is extracted from the part of the query after
-	     the ?, usually formated as
-	     ?key1=value1&key2=value2&key3=value3
+	     the “”?, usually formated as
+	     “?key1=value1&key2=value2&key3=value3”
 
      char *gcgi_gopher_host
 	     From argv[3], this is the current host name configured in
-	     geomyidae(8).  It is what to use as a host in links printed
+	     geomyidae(8).  It is what to use as a ‘host’ in links printed
 	     out.
 
      char *gcgi_gopher_port
 	     From argv[4], this is the current port number configured in
-	     geomyidae(8).  It is what to use as a port in links printed
+	     geomyidae(8).  It is what to use as a ‘port’ in links printed
 	     out.
 
 EXAMPLES
@@ -195,5 +195,12 @@ CAVEATS
 
      The Gopher protocol is not designed for dynamic scripting.	 A dedicated
      remote interface protocol such as SSH or telnet may be used instead.
+
+SEE ALSO
+     geomyidae(8)
+
+AUTHORS
+     Josuah Demangeon <me@josuah.net>
+     gopher://bitreich.org: The Bitreich Project
 
 LIBGCGI(3)		   Library Functions Manual		    LIBGCGI(3)
