@@ -42,6 +42,14 @@
 .
 .Sh DESCRIPTION
 .
+This library is a C wrapper around the
+.Xr geomyidae 8
+new CGI interface, which permits REST applications to be written for Gopher.
+In this mode,
+.Xr geomyidae 8
+directs all requests to a single binary in charge of handling all paths,
+rather than trying to serve a file.
+.
 .
 .Ss Request Handling
 .
@@ -59,7 +67,7 @@ struct gcgi_handler {
 The
 .Vt glob
 is a string against which the path (everything in the query before the
-.Dq ? )
+.Dq "?" )
 will be matched against.
 .Pp
 The

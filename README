@@ -41,6 +41,11 @@ SYNOPSIS
      struct gcgi_var_list gcgi_gopher_query
 
 DESCRIPTION
+     This library is a C wrapper around the geomyidae(8) new CGI interface,
+     which permits REST applications to be written for Gopher.	In this mode,
+     geomyidae(8) directs all requests to a single binary in charge of
+     handling all paths, rather than trying to serve a file.
+
    Request Handling
      The central element of the library is an array of structures, using
      appropriate handler depending on the query path.
@@ -51,7 +56,7 @@ DESCRIPTION
      };
 
      The glob is a string against which the path (everything in the query
-     before the “”?) will be matched against.
+     before the “?”) will be matched against.
 
      The fn function pointer will be called, with an array of matches passed
      as argument.  There are as many matches populated as there are “*” in
