@@ -1,1 +1,2 @@
-Hello {{name}}!
+Sorry, I could not find {{page}}.
+If it looks like an error, you can let us know that "{{page}}" is not working by sending us an email at {{mail}}.

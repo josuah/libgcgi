@@ -1,31 +1,27 @@
+#include <errno.h>
 #include <stddef.h>
-#include <unistd.h>
 #include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+
+#ifdef __linux__
+#include <seccomp.h>
+#endif
 
 #include "libgcgi.h"
 
-#ifndef __OpenBSD__
-#define pledge(p1,p2) 0
-#define unveil(p1,p2) 0
-#endif
-
 static void
-error_page_not_found(char **matches)
+page_not_found(char **matches)
 {
 	struct gcgi_var_list vars = {0};
-	char *var;
 
 	gcgi_read_var_list(&vars, "db/vars");
-
-	printf("sorry, I could not find %s\n", matches[0]);
-	if ((var = gcgi_get_var(&gcgi_gopher_query, "var")) != NULL)
-		printf("I got the $var though! -> '%s'\n", var);
-
-	gcgi_template("gph/error_page_not_found.gph", &vars);
+	gcgi_set_var(&vars, "page", matches[0]);
+	gcgi_template("gph/page_not_found.gph", &vars);
 }
 
 static struct gcgi_handler handlers[] = {
-	{ "*",		error_page_not_found },
+	{ "*",		page_not_found },
 	{ NULL,		NULL },
 };
 
@@ -33,13 +29,14 @@ int
 main(int argc, char **argv)
 {
 
-	/* restrict allowed paths */
+#if defined(__OpenBSD__)
 	if (unveil("gph", "r") == -1 || unveil("db", "rwc") == -1)
-		gcgi_fatal("unveil failed");
-
-	/* restrict allowed system calls */
+		gcgi_fatal("unveil failed: %s", strerror(errno));
 	if (pledge("stdio rpath wpath cpath", NULL) == -1)
-		gcgi_fatal("pledge failed");
+		gcgi_fatal("pledge failed: %s", strerror(errno));
+#else
+#warning "no syscall restriction enabled"
+#endif
 
 	/* handle the request with the handlers */
 	gcgi_handle_request(handlers, argv, argc);
